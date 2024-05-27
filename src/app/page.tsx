@@ -8,9 +8,6 @@ import { Movie } from '../types/type';
 
 const fetchMovies = async (): Promise<Movie[]> => {
   const res = await fetch('/imdb-top-250.json');
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
   const movies: Movie[] = await res.json();
   movies.sort((a, b) => parseFloat(a.rating.toString()) - parseFloat(b.rating.toString()));
   return movies;
@@ -28,13 +25,10 @@ const Home = () => {
 
   useEffect(() => {
     const fetchMoviesData = async () => {
-      try {
         const moviesData = await fetchMovies();
         setMovies(moviesData);
         setFilteredMovies(moviesData);
-      } catch (error) {
-        console.error('Failed to fetch movies', error);
-      }
+      
     };
 
     fetchMoviesData();
@@ -61,12 +55,12 @@ const Home = () => {
       movies.filter(movie => {
         const matchesSearch = movie.name.toLowerCase().includes(search.toLowerCase());
         const matchesGenre = genre ? movie.genre.includes(genre) : true;
-        const matchesRating = movie.rating >= minRating && movie.rating <= maxRating;
+       
         const matchesYear = year ? movie.year.toString() === year : true;
-        return matchesSearch && matchesGenre && matchesRating && matchesYear;
+        return matchesSearch && matchesGenre && matchesYear;
       })
     );
-  }, [search, genre, minRating, maxRating, year, movies]);
+  }, [search, genre,  year, movies]);
 
   return (
     <>
@@ -81,25 +75,12 @@ const Home = () => {
         />
         <select value={genre} onChange={(e) => setGenre(e.target.value)}>
           <option value="">All Genres</option>
-          {/* Add options for genres */}
+
           {Array.from(new Set(movies.flatMap(movie => movie.genre))).map(genre => (
             <option key={genre} value={genre}>{genre}</option>
           ))}
         </select>
-        <input
-          type="number"
-          placeholder="Min Rating"
-          value={minRating}
-          onChange={(e) => setMinRating(Number(e.target.value))}
-          className={styles.rating}
-        />
-        <input
-          type="number"
-          placeholder="Max Rating"
-          value={maxRating}
-          onChange={(e) => setMaxRating(Number(e.target.value))}
-          className={styles.rating}
-        />
+       
         <input
           type="number"
           placeholder="Year"
